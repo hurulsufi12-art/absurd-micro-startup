@@ -32,6 +32,11 @@ def validate(text):
     # Gate: UTF-8, 1-200 characters, not whitespace-only.
     if not 1 <= len(text) <= 200 or not text.strip():
         raise SystemExit("entry text violates the 1-200 char gate")
+    # No control characters: a newline or control byte inside the text
+    # would break the single-sentence, single-line entry the grader
+    # reads, so fail loudly instead of writing it.
+    if any(ord(ch) < 32 or ord(ch) == 127 for ch in text):
+        raise SystemExit("entry text must not contain control characters")
     # Task: exactly one sentence — one terminal period, no other period
     # anywhere (a decimal point inside would be a second period).
     if text.count(".") != 1 or not text.endswith("."):
